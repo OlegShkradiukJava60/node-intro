@@ -1,5 +1,5 @@
 {
-    "file" : {
-        "path":"path-default"
-    }
+  "inputFilePath": "input.ts",
+  "codeOutputPath": "outputCode.ts",
+  "commentsOutputPath": "outputComments.ts"
 }
