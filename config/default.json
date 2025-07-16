@@ -1,5 +1,5 @@
-{
-  "inputFilePath": "input.ts",
-  "codeOutputPath": "outputCode.ts",
-  "commentsOutputPath": "outputComments.ts"
+{ 
+    "inputFile": "index.ts",
+    "codeFile": "code.ts",
+    "commentsFile": "comments.ts"
 }

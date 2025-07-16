@@ -1,16 +1,14 @@
+
 import { readFile, writeFile } from 'node:fs/promises';
 import config from 'config';
-//names of the file path configuration properties
 const INPUT_FILE = "inputFile";
 const CODE_FILE = "codeFile";
 const COMMENTS_FILE = "commentsFile";
-//Pathes - interface defining object type containing all required file path values
 interface Pathes {
 inputFile: string;
 codeFile: string;
 commentsFile: string;
 }
-// getPathes - function returning object of type Pathes with all required file path values
 function getPathes(): Pathes {
    const inputFile = getConfigProp(INPUT_FILE) as string;
    const codeFile = getConfigProp(CODE_FILE) as string;
@@ -18,7 +16,6 @@ function getPathes(): Pathes {
    return {inputFile, codeFile, commentsFile}
 
 }
-// getConfigProp - reusable function for getting one value of unknown type from a config file
 function getConfigProp(prop: string): unknown {
     if(!config.has(prop)) {
     throw new Error(`Property ${prop} must exist in a configuration file`)
@@ -26,51 +23,41 @@ function getConfigProp(prop: string): unknown {
    const value = config.get(prop);
    return value;
 }
-// getCodeWithComments - function returning lines from the input file as an array of strings
 async function getCodeWithComments(inputFile: string): Promise<string[]> {
     const content:string = await readFile(inputFile, {encoding: "utf8"})
-    const res = content.split('\n'); //getting array of strings separated by new line symbol
+    const res = content.split('\n'); 
     return res;
 }
 
-// CodeComments - interface defining type with code and comments
 interface CodeComments {
     code: string;
     comments: string;
 }
-// codeCommentsSeparation - function returning object with code and comments fields
 function codeCommentsSeparation(codeComments: string[]): CodeComments {
      return codeComments.reduce(reducer, {code: "", comments: ""});
 }
-// reducer - callback for reducing in the function codeCommentsSeparation
 function reducer (codeComments: CodeComments, line: string): CodeComments {
     let code = codeComments.code;
     let comments = codeComments.comments;
     const indexComment = line.indexOf("/");
-    //additional condition for avoiding "//" in the example code
     if (indexComment < 0 || line[indexComment + 1] !== '/') { 
-        code += '\n' + line; //line contains only code
+        code += '\n' + line; 
     } else {
-        //line contains comments
         const codePart = line.substring(0, indexComment); 
         comments += '\n' + " ".repeat(codePart.length ? 3 : 0) + line.substring(indexComment);
-        codePart.trim() !== "" && (code += '\n' + codePart); //line contains both code and comments
+        codePart.trim() !== "" && (code += '\n' + codePart); 
     }
     return {code, comments}
 
 }
-// main - integration controller function
 async function main(): Promise<undefined> {
    try {
-     const {inputFile, codeFile, commentsFile} = getPathes(); //1 - getting all file path values
-     const codeWithComments: string[] = await getCodeWithComments(inputFile); //2 - getting code with comments
-     const {code, comments} = codeCommentsSeparation(codeWithComments); //3 - getting object with separated code and comments
-     //4 - simultaneous writing code and comments to appropriate files
+     const {inputFile, codeFile, commentsFile} = getPathes(); 
+     const codeWithComments: string[] = await getCodeWithComments(inputFile); 
+     const {code, comments} = codeCommentsSeparation(codeWithComments); 
      const promiseCode = writeFile(codeFile, code); 
      const promiseComments = writeFile(commentsFile, comments);
-     //5 - waiting for finishing saving actions
      await Promise.all([promiseCode, promiseComments]);
-     //6 - logging finishing of savings
      console.log(`code is saved to file ${codeFile}`);
      console.log(`comments are saved to file ${commentsFile}`);
    } catch (error) {
