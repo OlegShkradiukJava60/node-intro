@@ -1,20 +1,16 @@
-import EventEmitter from "events";
-const emitter = new EventEmitter();
+import Logger from "./Logger.ts";
 
-emitter.on("message", (arg: string) => {
-    if (arg.toLowerCase().includes("hello")) {
-        throw new Error("Hello detected!");
-    }
-})
 
-emitter.on("message", (arg: any) => {
-    console.log("Event received!", `The message contains ${arg}`);
-});
-emitter.on("message", (arg: string) => {
-    console.log(`Received: ${arg.length}`);
-});
+const logger = new Logger();
 
-console.log("Registered events:", emitter.eventNames());
+const consoleHandler = logger.subscribe(e => console.log(e.message));
+logger.subscribe(consoleHandler);
+logger.addLevelHandler("info", s => console.log("INFO EVENT HANDLER: " + s));
 
-emitter.emit("message", "Hell, World!");
-emitter.emit("message", "Hell");
+logger.log("info", "Hello from INFO!");
+logger.log("severe", "Hello from severe!");
+
+logger.unsubscribe(consoleHandler);
+
+logger.log("info", "Hello from INFO!");
+logger.log("severe", "Hello from severe!");
