@@ -1,46 +1,53 @@
 import { Readable } from "node:stream";
-
-export class RandomNumbersStream extends Readable {
-    private amount: number;
-    private min: number;
-    private max: number;
-    private isUnique: boolean;
-    private generated: number[] = [];
-    private count: number = 0;
-
-    constructor(amount: number, min: number = Number.MIN_SAFE_INTEGER, max: number = Number.MAX_SAFE_INTEGER, isUnique: boolean = false, options: any = { encoding: "utf8" }) {
-        super(options);
-        this.amount = amount;
-        this.min = min;
-        this.max = max;
-        this.isUnique = isUnique;
-
-        if (this.isUnique && (this.max - this.min + 1) < this.amount) {
-            throw new Error("Not enough unique numbers in the given range.");
-        }
+export default class RandomNumbersStream extends Readable {
+    private _uniqueNumbers: Set<number> = new Set();
+    private _counter: number = 0;
+    constructor(
+        private _amount: number,
+        private _min: number = Number.MIN_SAFE_INTEGER,
+        private _max: number = Number.MAX_SAFE_INTEGER,
+        private _isUnique: boolean = false
+    ) {
+        super();
+        checkParameters(_min, _max, _isUnique, _amount);
     }
 
-    private getRandomNumber(): number {
-        return Math.floor(Math.random() * (this.max - this.min + 1)) + this.min;
-    }
 
-    _read(): void {
-        while (this.count < this.amount) {
-            let value = this.getRandomNumber();
-
-            if (this.isUnique) {
-                if (this.generated.includes(value)) {
-                    continue;
+    _read() {
+        if (this._counter >= this._amount) {
+            this.push(null)
+        } else {
+            let number = this._getRandomNumber()
+            if (this._isUnique) {
+                while (this._uniqueNumbers.has(number)) {
+                    number = this._getRandomNumber();
                 }
-                this.generated.push(value);
+                this._uniqueNumbers.add(number);
             }
-
-            this.count++;
-            const output = value.toString() + "\n";
-            this.push(output);
-            return;
+            this._counter++;
+            this.push(number + "; ")
         }
+    }
 
-        this.push(null);
+    private _getRandomNumber() {
+        return this._min + Math.round(Math.random() * (this._max - this._min));
+    }
+}
+function checkParameters(_min: number, _max: number, _isUnique: boolean, _amount: number) {
+    if (!Number.isInteger(_amount) || _amount < 1) {
+        throw new Error("amount value must be a positive integer number")
+    }
+    if (!Number.isInteger(_min)) {
+        throw new Error("minimal value must be an integer number");
+    }
+    if (!Number.isInteger(_max)) {
+        throw new Error("maximal value must be an integer number");
+    }
+    if (_max <= _min) {
+        throw new Error("maximal value must be greater than minimal value");
+    }
+    const rangeLength = _max - _min + 1;
+    if (_isUnique && _amount > rangeLength) {
+        throw new Error(`for possible generation of unique integer random numbers the amount must be less or equal ${rangeLength}`);
     }
 }

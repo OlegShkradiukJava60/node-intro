@@ -10,11 +10,11 @@
     "dev": "node --no-warnings --loader ts-node/esm index.ts"
   },
   "dependencies": {
+    "@types/config": "^3.3.5",
     "config": "^4.0.1",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@types/config": "^3.3.5",
     "@types/lodash": "^4.17.20",
     "@types/node": "^24.0.12",
     "ts-node": "^10.9.2",
