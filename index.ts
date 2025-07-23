@@ -5,8 +5,13 @@ const nNumbers: number = config.get("nNumbers");
 const minValue: number = config.get("minValue");
 const maxValue: number = config.get("maxValue");
 
-const generator = new RandomNumbersStream(nNumbers, minValue, maxValue, true);
+const stream = new RandomNumbersStream(nNumbers, minValue, maxValue, true);
 
-const numbers = generator.generate();
+console.log("Generated numbers:");
+stream.on("data", (chunk) => {
+    process.stdout.write(chunk);
+});
 
-console.log("Generated numbers:", numbers);
+stream.on("end", () => {
+    console.log("Stream finished");
+});

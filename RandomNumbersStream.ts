@@ -1,48 +1,46 @@
-export class RandomNumbersStream {
+import { Readable } from "node:stream";
+
+export class RandomNumbersStream extends Readable {
     private amount: number;
     private min: number;
     private max: number;
     private isUnique: boolean;
+    private generated: number[] = [];
+    private count: number = 0;
 
-    constructor(amount: number, min: number = Number.MIN_SAFE_INTEGER, max: number = Number.MAX_SAFE_INTEGER, isUnique: boolean = false) {
+    constructor(amount: number, min: number = Number.MIN_SAFE_INTEGER, max: number = Number.MAX_SAFE_INTEGER, isUnique: boolean = false, options: any = { encoding: "utf8" }) {
+        super(options);
         this.amount = amount;
         this.min = min;
         this.max = max;
         this.isUnique = isUnique;
+
+        if (this.isUnique && (this.max - this.min + 1) < this.amount) {
+            throw new Error("Not enough unique numbers in the given range.");
+        }
     }
 
-    public generate(): number[] {
-        const numbers: number[] = [];
+    private getRandomNumber(): number {
+        return Math.floor(Math.random() * (this.max - this.min + 1)) + this.min;
+    }
 
-        if (this.isUnique) {
-            const range = this.max - this.min + 1;
+    _read(): void {
+        while (this.count < this.amount) {
+            let value = this.getRandomNumber();
 
-            if (this.amount > range) {
-                throw new Error("There are not enough unique numbers in the given range");
+            if (this.isUnique) {
+                if (this.generated.includes(value)) {
+                    continue;
+                }
+                this.generated.push(value);
             }
 
-            const all: number[] = [];
-            for (let i = this.min; i <= this.max; i++) {
-                all.push(i);
-            }
-
-            while (numbers.length < this.amount) {
-                const randomIndex = Math.floor(Math.random() * all.length);
-                const value = all[randomIndex];
-                numbers.push(value);
-                all.splice(randomIndex, 1);
-            }
-        } else {
-            for (let i = 0; i < this.amount; i++) {
-                const value = this.getRandomNumber(this.min, this.max);
-                numbers.push(value);
-            }
+            this.count++;
+            const output = value.toString() + "\n";
+            this.push(output);
+            return;
         }
 
-        return numbers;
-    }
-
-    private getRandomNumber(min: number, max: number): number {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
+        this.push(null);
     }
 }
