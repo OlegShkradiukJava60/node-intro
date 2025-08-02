@@ -1,23 +1,31 @@
-export class WrongOperationError {
-    constructor(public message: string) {
-       
+class WrongOperationError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'WrongOperationError';
     }
 }
- class CalculatorService {
-    private  calculations: Record<string, (op1:number, op2:number)=>number> = {
-       "add": (op1, op2) => op1 + op2,
-       "mul": (op1, op2) => op1 * op2,
-       "sub": (op1, op2) => op1 - op2,
-       "div": (op1, op2) => op1 / op2,
-       "percent": (op1, op2) => Math.round(op2 / op1 * 100)
 
-    }
-    calculate({operation, op1, op2}): number {
-        if (!this.calculations[operation]) {
-            throw new WrongOperationError(`operation "${operation}" is unsupported`)
+const calculator = {
+    calculate({ operation,
+        op1,
+        op2
+    }: { operation: string; op1: number; op2: number }):
+        number {
+        switch (operation) {
+            case 'add':
+                return op1 + op2;
+            case 'sub':
+                return op1 - op2;
+            case 'mul':
+                return op1 * op2;
+            case 'div':
+                if (op2 === 0) throw new Error('Division by zero');
+                return op1 / op2;
+            default:
+                throw new WrongOperationError(`Unknown operation: ${operation}`);
         }
-        return this.calculations[operation](op1, op2)
-    }
-}
-const calculatorService = new CalculatorService();
-export default calculatorService;
+    },
+};
+
+export { WrongOperationError };
+export default calculator;
