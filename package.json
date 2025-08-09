@@ -7,22 +7,20 @@
   "type": "module",
   "main": "index.ts",
   "scripts": {
-    "dev": "nodemon",
-    "build": "tsc"
+    "dev": "nodemon"
   },
   "dependencies": {
-    "config": "^4.0.1",
+    "@types/lodash": "^4.17.20",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "express-rate-limit": "^8.0.1",
     "lodash": "^4.17.21",
-    "response-time": "^2.3.4"
+    "morgan": "^1.10.1",
+    "zod": "^4.0.15"
   },
   "devDependencies": {
-    "@types/config": "^3.3.5",
     "@types/express": "^5.0.3",
-    "@types/lodash": "^4.17.20",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^24.0.12",
-    "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1",
     "typescript": "^5.8.3"

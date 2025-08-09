@@ -1,5 +1,5 @@
 {
-  "watch": ["src", "config"],
-  "ext": "ts,json",
-  "exec": "node --no-warnings --loader ts-node/esm src/controller/index.ts"
+    "watch": ["src", "config",".env"],
+    "ext":"ts,json,env",
+    "exec": "node --no-warnings --loader ts-node/esm src/controller/index.ts"
 }
